@@ -448,6 +448,16 @@ public final class ZpmHubTE extends BaseTileInventory implements ISGEnergySource
 
     @Override
     public int getMultipleEnergyPacketAmount() {
-        return 1024;
+        switch (this.getZpmSlotsloaded()){
+            case 1:
+                return 333;
+            case 2:
+                return 333 * 4;
+            case 3:
+                return 333 * 8;
+            case 0:
+            default:
+                return 1;
+        }
     }
 }
