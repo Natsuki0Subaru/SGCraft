@@ -10,6 +10,7 @@ import gcewing.sg.interfaces.ISGEnergySource;
 import ic2.api.energy.prefab.BasicSource;
 import ic2.api.energy.tile.IEnergyAcceptor;
 import ic2.api.energy.tile.IEnergySource;
+import ic2.api.energy.tile.IMultiEnergySource;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayer;
@@ -32,22 +33,22 @@ import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
 
-public final class ZpmHubTE extends BaseTileInventory implements ISGEnergySource, IEnergySource, IInventory, ITickable {
+public final class ZpmHubTE extends BaseTileInventory implements ISGEnergySource, IMultiEnergySource , IInventory, ITickable {
     private NonNullList<ItemStack> items = NonNullList.withSize(3, ItemStack.EMPTY);
-    public final BasicSource hubSource;
+    public final ZpmHubBasicSource hubSource;
     public static final int firstZpmSlot = 0;
     public static final int numZpmSlots = 3;
     public static final int numSlots = numZpmSlots; // future usage > 1
-    public int zpmSlot0Energy = 0;
-    public int zpmSlot1Energy = 0;
-    public int zpmSlot2Energy = 0;
+    public long zpmSlot0Energy = 0;
+    public long zpmSlot1Energy = 0;
+    public long zpmSlot2Energy = 0;
     public int zpmSlotsloaded = 0;
 
     private double energyPerSGEnergyUnit = 80;
     private int update = 0;
 
     public ZpmHubTE() {
-        this.hubSource = new ZpmHubBasicSource(this, Integer.MAX_VALUE, 3);
+        this.hubSource = new ZpmHubBasicSource(this, 3);
     }
 
     /* TileEntity */
@@ -56,9 +57,9 @@ public final class ZpmHubTE extends BaseTileInventory implements ISGEnergySource
     public void readFromNBT(final NBTTagCompound compound) {
         super.readFromNBT(compound);
         this.hubSource.readFromNBT(compound);
-        this.zpmSlot0Energy = compound.getInteger("zpmSlot0Energy");
-        this.zpmSlot1Energy = compound.getInteger("zpmSlot1Energy");
-        this.zpmSlot2Energy = compound.getInteger("zpmSlot2Energy");
+        this.zpmSlot0Energy = compound.getLong("zpmSlot0Energy");
+        this.zpmSlot1Energy = compound.getLong("zpmSlot1Energy");
+        this.zpmSlot2Energy = compound.getLong("zpmSlot2Energy");
         //System.out.println("Read: 0: " + this.zpmSlot0Energy);
     }
 
@@ -66,9 +67,9 @@ public final class ZpmHubTE extends BaseTileInventory implements ISGEnergySource
     public NBTTagCompound writeToNBT(final NBTTagCompound compound) {
         super.writeToNBT(compound);
         this.hubSource.writeToNBT(compound);
-        compound.setInteger("zpmSlot0Energy", zpmSlot0Energy);
-        compound.setInteger("zpmSlot1Energy", zpmSlot1Energy);
-        compound.setInteger("zpmSlot2Energy", zpmSlot2Energy);
+        compound.setLong("zpmSlot0Energy", zpmSlot0Energy);
+        compound.setLong("zpmSlot1Energy", zpmSlot1Energy);
+        compound.setLong("zpmSlot2Energy", zpmSlot2Energy);
         return compound;
     }
 
@@ -115,7 +116,7 @@ public final class ZpmHubTE extends BaseTileInventory implements ISGEnergySource
 
     @Override
     public double availableEnergy() {
-        return this.hubSource.getEnergyStored();
+        return (this.zpmSlot0Energy + this.zpmSlot1Energy + this.zpmSlot2Energy) / 30.0;
     }
 
     @Override
@@ -311,18 +312,18 @@ public final class ZpmHubTE extends BaseTileInventory implements ISGEnergySource
             tag.setBoolean(ZPMItem.LOADED, true);
 
             if (!tag.hasKey(ZPMItem.ENERGY, 99 /* number */)) {
-                tag.setDouble(ZPMItem.ENERGY, Integer.MAX_VALUE);
+                tag.setDouble(ZPMItem.ENERGY, 30.0 * Integer.MAX_VALUE);
             }
 
             if (index == 0) {
-                this.zpmSlot0Energy = (int)tag.getDouble(ZPMItem.ENERGY);
+                this.zpmSlot0Energy = (long)tag.getDouble(ZPMItem.ENERGY);
             } else if (index == 1) {
-                this.zpmSlot1Energy = (int)tag.getDouble(ZPMItem.ENERGY);
+                this.zpmSlot1Energy = (long)tag.getDouble(ZPMItem.ENERGY);
             } else if (index == 2) {
-                this.zpmSlot2Energy = (int)tag.getDouble(ZPMItem.ENERGY);
+                this.zpmSlot2Energy = (long)tag.getDouble(ZPMItem.ENERGY);
             }
 
-            this.hubSource.setEnergyStored(this.hubSource.getEnergyStored() + tag.getDouble(ZPMItem.ENERGY));
+            //this.hubSource.setEnergyStored(this.hubSource.getEnergyStored() + tag.getDouble(ZPMItem.ENERGY));
         }
 
         if (world != null) {
@@ -340,25 +341,21 @@ public final class ZpmHubTE extends BaseTileInventory implements ISGEnergySource
         if (isValidFuelItem(this.getStackInSlot(0))) {
             // good
         } else {
-            this.hubSource.setEnergyStored(this.hubSource.getEnergyStored() - this.zpmSlot0Energy);
+            //this.hubSource.setEnergyStored(this.hubSource.getEnergyStored() - this.zpmSlot0Energy);
             this.zpmSlot0Energy = 0;
         }
 
         if (isValidFuelItem(this.getStackInSlot(1))) {
             // good
         } else {
-            this.hubSource.setEnergyStored(this.hubSource.getEnergyStored() - this.zpmSlot1Energy);
+           // this.hubSource.setEnergyStored(this.hubSource.getEnergyStored() - this.zpmSlot1Energy);
             this.zpmSlot1Energy = 0;
         }
         if (isValidFuelItem(this.getStackInSlot(2))) {
             // good
         } else {
-            this.hubSource.setEnergyStored(this.hubSource.getEnergyStored() - this.zpmSlot2Energy);
+           // this.hubSource.setEnergyStored(this.hubSource.getEnergyStored() - this.zpmSlot2Energy);
             this.zpmSlot2Energy = 0;
-        }
-
-        if (getZpmSlotsloaded() == 0) {
-            this.hubSource.setEnergyStored(0);
         }
     }
 
@@ -442,5 +439,15 @@ public final class ZpmHubTE extends BaseTileInventory implements ISGEnergySource
         } else {
             return false;
         }
+    }
+
+    @Override
+    public boolean sendMultipleEnergyPackets() {
+        return true;
+    }
+
+    @Override
+    public int getMultipleEnergyPacketAmount() {
+        return 1024;
     }
 }

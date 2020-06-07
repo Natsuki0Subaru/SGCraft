@@ -61,15 +61,12 @@ public class ZpmHub extends BlockContainer {
                     if (slot == 0) {
                         tag.setDouble(ZPMItem.ENERGY, zpmHub.zpmSlot0Energy);
                         tag.setBoolean(ZPMItem.LOADED, false);
-                        zpmHub.hubSource.setEnergyStored(zpmHub.hubSource.getEnergyStored() - zpmHub.zpmSlot0Energy);
                     } else if (slot == 1) {
                         tag.setDouble(ZPMItem.ENERGY, zpmHub.zpmSlot1Energy);
                         tag.setBoolean(ZPMItem.LOADED, false);
-                        zpmHub.hubSource.setEnergyStored(zpmHub.hubSource.getEnergyStored() - zpmHub.zpmSlot1Energy);
                     } else if (slot == 2) {
                         tag.setDouble(ZPMItem.ENERGY, zpmHub.zpmSlot2Energy);
                         tag.setBoolean(ZPMItem.LOADED, false);
-                        zpmHub.hubSource.setEnergyStored(zpmHub.hubSource.getEnergyStored() - zpmHub.zpmSlot2Energy);
                     }
                 }
             }

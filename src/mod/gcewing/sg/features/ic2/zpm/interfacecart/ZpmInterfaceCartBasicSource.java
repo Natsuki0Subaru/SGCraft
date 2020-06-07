@@ -23,7 +23,6 @@ public final class ZpmInterfaceCartBasicSource extends BasicSource {
                 world.newExplosion(null, this.pos.getX(), this.pos.getY(), this.pos.getZ(), (float)250, true, true);
             }
         }
-
     }
 
     @Override
